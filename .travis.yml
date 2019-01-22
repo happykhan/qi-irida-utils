@@ -27,3 +27,5 @@ deploy:
     tags: true
     repo: happykhan/qi_irida_utils
     python: 3.6
+after_success:
+  - coveralls                     # Add me to upload reports to coveralls.io
