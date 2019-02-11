@@ -1,7 +1,7 @@
 import subprocess
 import os
 import csv
-from multiprocessing import Manager, Process, Queue
+from multiprocessing import Process, Queue
 import logging
 from subprocess import call
 import copy
@@ -67,9 +67,7 @@ class FetchReads:
                 subprocess.call(fastq_dump_command)
         if os.path.exists(self.r1) and os.path.exists(self.r2):
             log.info("Downloaded {}".format(self.sample_name))
-            irida_sample_file = os.path.join(
-                self.output_dir, "SampleList.csv"
-            )
+            irida_sample_file = os.path.join(self.output_dir, "SampleList.csv")
             with open(irida_sample_file, "w") as temp_sheet:
                 temp_sheet.write("[Data]\n")
                 temp_sheet.write("Sample_Name,Project_ID,File_Forward,File_Reverse\n")
@@ -129,7 +127,7 @@ def prepare_sample(
             if x.get("Accession"):
                 y = copy.deepcopy(config)
                 y.update(x)
-                y['output_dir'] = os.path.join(y['output_dir'], y['Sample_name'])
+                y["output_dir"] = os.path.join(y["output_dir"], y["Sample_name"])
                 upload_queue.put(FetchReads(**y))
                 log.debug("Queued sra: {}".format(x.get("Sample_name")))
             else:

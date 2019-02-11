@@ -6,8 +6,11 @@
 import pytest
 from click.testing import CliRunner
 import sys
-sys.path.append('../qi_irida_utils')
-from qi_irida_utils import cli
+import os
+my_path = os.path.abspath(os.path.dirname(__file__))
+sys.path.insert(0, os.path.join(my_path, '..'))
+print(sys.path)
+from qi_irida_utils.cli import cli
 
 @pytest.fixture
 def response():
@@ -28,12 +31,9 @@ def test_content(response):
 def test_command_line_interface():
     """Test the CLI."""
     runner = CliRunner()
-    result = runner.invoke(cli.main)
-    assert result.exit_code == 0
-    assert 'qi_irida_utils.cli.main' in result.output
-    help_result = runner.invoke(cli.main, ['--help'])
+    help_result = runner.invoke(cli, ['--help'])
     assert help_result.exit_code == 0
-    assert '--help  Show this message and exit.' in help_result.output
+    assert 'Show this message and exit.' in help_result.output
 
 def test_connection():
     """Assumes localhost, tests Oauth"""
