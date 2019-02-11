@@ -4,7 +4,7 @@
 import sys
 import click
 import os
-from qi_irida_utils.irida_workflow import prepare_sample
+from irida_workflow import prepare_sample
 import logging
 
 logging.basicConfig()

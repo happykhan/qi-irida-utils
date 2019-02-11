@@ -1,5 +1,5 @@
 rauth==0.7.3
-autopep8==1.4
+autopep8==1.4.3
 pycodestyle
 requests==2.21.0
 appdirs==1.4.3
@@ -8,4 +8,4 @@ mkdocs==1.0.4
 cerberus
 pynsist==2.3
 argparse
-selenium
+selenium==3.141.0
