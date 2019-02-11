@@ -7,5 +7,5 @@ pytest
 mkdocs==1.0.0
 cerberus
 pynsist==2.3
-argparse
+argparse==1.4.0
 selenium
