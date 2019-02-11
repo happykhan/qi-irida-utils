@@ -4,12 +4,10 @@
 """Tests for `qi_irida_utils` package."""
 
 import pytest
-
 from click.testing import CliRunner
-
-from qi_irida_utils import qi_irida_utils
+import sys
+sys.path.append('../qi_irida_utils')
 from qi_irida_utils import cli
-
 
 @pytest.fixture
 def response():

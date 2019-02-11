@@ -1,0 +1,3 @@
+[submodule "irida-uploader"]
+	path = irida-uploader
+	url = https://github.com/phac-nml/irida-uploader
