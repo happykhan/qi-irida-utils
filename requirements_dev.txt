@@ -13,12 +13,12 @@ icon-font-to-png==0.4.1
 idna==2.8
 Jinja2==2.10
 livereload==2.6.0
-llvmlite==0.27.0
+llvmlite==0.27.1
 Markdown==3.0.1
 MarkupSafe==1.1.0
-mkdocs==1.0
-more-itertools==5.0.0
-numba==0.42.0
+mkdocs==1.0.4
+more-itertools==6.0.0
+numba==0.42.1
 numpy==1.16.1
 Pillow==5.4.1
 pipe==1.5.0
@@ -26,7 +26,7 @@ pluggy==0.8.1
 py==1.7.0
 pycodestyle==2.5.0
 pynsist==2.3
-pytest==4.2.0
+pytest==4.2.1
 PyYAML>=4.2b1
 rauth==0.7.3
 requests==2.21.0
