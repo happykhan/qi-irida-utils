@@ -9,7 +9,7 @@ install:
     - pip install -U tox-travis
 script:
     - tox
-    - coverage run --source qi_irida_utils -m py.test qi_irida_utils/tests
+    - coverage run --source qi_irida_utils -m py.test tests/
     - coverage report -m
 deploy:
   provider: pypi
