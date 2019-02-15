@@ -8,9 +8,9 @@ from click.testing import CliRunner
 import sys
 import os
 my_path = os.path.abspath(os.path.dirname(__file__))
-sys.path.insert(0, os.path.join(my_path, '..'))
+sys.path.insert(0, os.path.join(my_path, '../qi_irida_utils'))
 print(sys.path)
-from qi_irida_utils.cli import cli
+from cli import cli
 
 @pytest.fixture
 def response():
