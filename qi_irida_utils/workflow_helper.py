@@ -1,6 +1,5 @@
 import urllib.request
 import json
-import re
 import subprocess
 import os
 import ssl
