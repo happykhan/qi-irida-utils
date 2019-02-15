@@ -48,7 +48,7 @@ Please report any issues to the `issues page`_.
 
 Citation
 --------
-QI IRIDA Utils is not formally publsihed. Please cite https://github.com/happykhan/qi-irida-utils
+QI IRIDA Utils is not formally published. Please cite https://github.com/happykhan/qi-irida-utils
 
 This package was created with Cookiecutter_ and the `QI python template`_ project template.
 
