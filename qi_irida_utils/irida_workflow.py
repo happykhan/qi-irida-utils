@@ -41,7 +41,7 @@ class FetchReads:
             self.r1 = os.path.join(self.output_dir, self.acc + "_1.fastq.gz")
             self.r2 = os.path.join(self.output_dir, self.acc + "_2.fastq.gz")
             if True:
-            #if os.path.exists(self.r1):
+                # if os.path.exists(self.r1):
                 log.debug("Exists, skipping " + self.r1)
             else:
                 ascp_command = [
@@ -84,7 +84,12 @@ class FetchReads:
                 shutil.copy(ori_r1, self.r1)
             if not os.path.exists(self.r2):
                 shutil.copy(ori_r2, self.r2)
-        return dict(sample_name=self.sample_name, project_id=self.project_id, r1=self.r1, r2=self.r2)
+        return dict(
+            sample_name=self.sample_name,
+            project_id=self.project_id,
+            r1=self.r1,
+            r2=self.r2,
+        )
 
 
 def worker(q, output_queue):
@@ -92,7 +97,7 @@ def worker(q, output_queue):
         obj = q.get()
         output_queue.put(obj.run())
         if q.empty():
-            log.info('spanner {}'.format(q.qsize()))
+            log.info("spanner {}".format(q.qsize()))
             break
 
 
@@ -119,7 +124,7 @@ def prepare_sample(
         reverse=True,
     ):
         if x.get("Sample_name"):
-            if x.get("Accession") or (x.get('File_Forward') and x.get('File_Reverse')):
+            if x.get("Accession") or (x.get("File_Forward") and x.get("File_Reverse")):
                 y = copy.deepcopy(config)
                 y.update(x)
                 upload_queue.put(FetchReads(**y))
@@ -148,22 +153,22 @@ def upload_irida(all_results, output_dir):
         temp_sheet.write("[Data]\n")
         temp_sheet.write("Sample_Name,Project_ID,File_Forward,File_Reverse\n")
         for res in all_results:
-            if os.path.exists(res['r1']) and os.path.exists(res['r2']):
+            if os.path.exists(res["r1"]) and os.path.exists(res["r2"]):
                 temp_sheet.write(
                     "{},{},{},{}\n".format(
-                        res['sample_name'],
-                        res['project_id'],
-                        os.path.basename(res['r1']),
-                        os.path.basename(res['r2']),
+                        res["sample_name"],
+                        res["project_id"],
+                        os.path.basename(res["r1"]),
+                        os.path.basename(res["r2"]),
                     )
                 )
             else:
-                log.error(' Path {} or {} do not exist '.format(res['r1'], res['r2']))
+                log.error(" Path {} or {} do not exist ".format(res["r1"], res["r2"]))
         temp_sheet.close()
         log.info("Uploading to IRIDA")
-        stderr = b'ERROR'
+        stderr = b"ERROR"
         count = 1
-        while 'ERROR' in stderr.decode('utf-8'):
+        while "ERROR" in stderr.decode("utf-8"):
             if count > 1:
                 log.warning("{}".format(stderr))
                 time.sleep(1)
@@ -175,7 +180,9 @@ def upload_irida(all_results, output_dir):
                     "-c",
                     "/usr/users/QIB_fr005/alikhan/code/qi_irida_utils/config.conf",
                     output_dir,
-                ], stdout=subprocess.PIPE, stderr=subprocess.PIPE
+                ],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
             )
             stdout, stderr = p.communicate()
             count += 1

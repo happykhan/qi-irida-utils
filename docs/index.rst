@@ -1,5 +1,5 @@
 Welcome to QI IRIDA Utils's documentation!
-======================================
+==========================================
 
 .. toctree::
    :maxdepth: 2
@@ -8,7 +8,6 @@ Welcome to QI IRIDA Utils's documentation!
    readme
    installation
    usage
-   modules
    contributing
    authors
    history

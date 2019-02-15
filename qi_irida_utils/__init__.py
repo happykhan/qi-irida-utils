@@ -4,5 +4,5 @@
 
 __author__ = """Nabil-Fareed Alikhan"""
 __email__ = 'nabil-fareed.alikhan@quadram.ac.uk'
-__version__ = '0.1.1'
+__version__ = '0.1.2'
 

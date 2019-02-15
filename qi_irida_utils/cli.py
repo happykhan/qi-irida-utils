@@ -10,21 +10,37 @@ import logging
 logging.basicConfig()
 log = logging.getLogger()
 
+
 @click.group()
 def cli1(args=None):
     pass
 
+
 @cli1.command()
-@click.option('--aspera_path', default=os.path.join(os.path.expanduser("~"), ".aspera/connect/bin/"),
-              help='Path of ascp binary')
-@click.option('--fastqdump_path', default=os.path.join(os.path.expanduser("~"), "app/sratoolkit/bin/"),
-              help='Path of fastq-dump binary')
-@click.option('--aspera_key', default=os.path.join(os.path.expanduser("~"), ".aspera/connect/etc/asperaweb_id_dsa.openssh"),
-              help='Path of ascp key')
-@click.option('--sample_file', default=os.path.join(os.path.expanduser("~"), 'test_file.csv'),
-              help='Path of sample file')
-@click.option('--output_dir', default="/tmp/irwork", help='Output directory')
-@click.option('--verbose', default=True, help='Verbose output')
+@click.option(
+    "--aspera_path",
+    default=os.path.join(os.path.expanduser("~"), ".aspera/connect/bin/"),
+    help="Path of ascp binary",
+)
+@click.option(
+    "--fastqdump_path",
+    default=os.path.join(os.path.expanduser("~"), "app/sratoolkit/bin/"),
+    help="Path of fastq-dump binary",
+)
+@click.option(
+    "--aspera_key",
+    default=os.path.join(
+        os.path.expanduser("~"), ".aspera/connect/etc/asperaweb_id_dsa.openssh"
+    ),
+    help="Path of ascp key",
+)
+@click.option(
+    "--sample_file",
+    default=os.path.join(os.path.expanduser("~"), "test_file.csv"),
+    help="Path of sample file",
+)
+@click.option("--output_dir", default="/tmp/irwork", help="Output directory")
+@click.option("--verbose", default=True, help="Verbose output")
 def upload(aspera_path, fastqdump_path, aspera_key, sample_file, output_dir, verbose):
     """Uploads sequencing data (SRA or local) to IRIDA"""
     if verbose:
