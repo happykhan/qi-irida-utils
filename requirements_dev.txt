@@ -13,7 +13,7 @@ icon-font-to-png==0.4.1
 idna==2.8
 Jinja2==2.10
 livereload==2.6.0
-llvmlite==0.27.0
+llvmlite==0.27.1
 Markdown==3.0.1
 MarkupSafe==1.1.0
 mkdocs==1.0.4
