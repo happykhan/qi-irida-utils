@@ -21,21 +21,24 @@ WORKFLOW_PROP = (
 )
 PIPELINES = [
     {
-        "galaxy_url": GALAXY_URL + "assemblyannotation-2" + "/json",
+        "galaxy_url": GALAXY_URL + "aa2master" + "/json",
         "irida_type": "ASSEMBLY_ANNOTATION",
         "irida_name": "AssemblyAnnotation",
-        "irida_version": "0.7.7",
         "workflow_path": WORKFLOW_PATH,
-        "uuid": "4ab671c3-ebfb-4cae-82a6-2facb3d09f23",
     },
     {
-        "galaxy_url": GALAXY_URL + "phylogeneticsmaster" + "/json",
+        "galaxy_url": GALAXY_URL + "phylotypingmaster-2" + "/json",
         "irida_type": "PHYLOGENOMICS",
         "irida_name": "Phylogenetics",
-        "irida_version": "0.1.4",
         "workflow_path": WORKFLOW_PATH,
         "multiple": True,
-        "uuid": "4b6685e3-db29-4064-9364-409bed00ea05",
+    },
+    {
+        "galaxy_url": GALAXY_URL + "atat3master" + "/json",
+        "irida_type": "ASSEMBLY_ANNOTATION_COLLECTION",
+        "irida_name": "AssemblyAnnotationCollection",
+        "workflow_path": WORKFLOW_PATH,
+        "multiple": True,
     },
 ]
 
@@ -58,6 +61,15 @@ for pipe in PIPELINES:
                 y["tool_state"] = '{"name": "reference"}'
         with open("{irida_name}.json".format(**pipe), "w") as outfile:
             json.dump(data, outfile)
+        # ALWAYS Increment version
+        workflow_path = os.path.join(
+            WORKFLOW_PATH,
+            pipe["irida_name"])
+        if os.path.exists(workflow_path):
+            max_version = max([int(x.split('.')[-1]) for x in os.listdir(workflow_path)])
+            pipe['irida_version'] = '0.{}'.format(max_version + 1)
+        else:
+            pipe['irida_version'] = '0.1'
         # Generate IRIDA files from galaxy workflow
         process_ga = (
             "java -jar lib/irida-wf-ga2xml-1.0.0-SNAPSHOT-standalone.jar "
@@ -79,6 +91,10 @@ for pipe in PIPELINES:
             )
         workflow_xml = ET.parse(workflow_xml_path)
         workflow_root = workflow_xml.getroot()
+        # CHECK XML: Tree should be names 'tree' only
+        for tr_field in workflow_root.iterfind('outputs/output'):
+            if tr_field.get('fileName') == 'tree.newick':
+                tr_field.set('name', 'tree')
         # CHECK XML: has sequence Reads Paired specified
         for sq_field in workflow_root.iterfind('inputs/sequenceReadsPaired'):
             sq_field.text = 'sequence_reads_paired'

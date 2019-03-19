@@ -5,6 +5,7 @@ import sys
 import click
 import os
 from irida_workflow import prepare_sample
+from basemount_sync import basemount
 import logging
 
 logging.basicConfig()
@@ -55,6 +56,17 @@ def upload(aspera_path, fastqdump_path, aspera_key, sample_file, output_dir, ver
 def download(args=None):
     """Console script for qi_irida_utils."""
     click.echo("Not Implemented!")
+    return 0
+
+
+@cli1.command()
+@click.option("--read_dir", default="/usr/users/QIB_fr005/alikhan/seq/Projects", help="Basemount directory")
+@click.option("--verbose", default=True, help="Verbose output")
+def basemount(read_dir, verbose):
+    """Console script for qi_irida_utils."""
+    if verbose:
+        log.setLevel(logging.DEBUG)
+    basemount(read_dir)
     return 0
 
 
