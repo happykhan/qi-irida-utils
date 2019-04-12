@@ -112,7 +112,11 @@ class InitQC:
                 # first merge NextSeq reads
                 r1, r2, merged = self.merge_reads(project, sample_name, temp_dir)
                 if not merged:
-                    self.api.send_sequence_files(SequenceFile([r1, r2]), sample_name, project[0], 1)
+                    # run fastp.
+                    fastp_r1 = os.path.join(os.path.dirname(r1), 'filt.' + path.basename(r1))
+                    fastp_r2 = os.path.join(os.path.dirname(r2), 'filt.' + path.basename(r2))
+                    subprocess.call('fastp  -i {} -I {} -o {} -O {} '.format(r1, r2, fastp_r1, fastp_r2))
+                    self.api.send_sequence_files(SequenceFile([fastp_r1, fastp_r2]), sample_name, project[0], 1)
 
 
 
@@ -149,14 +153,14 @@ class InitQC:
                         seq_file_local_path = path.join(temp_dir, seq_file_name)
 
                         # Generate fastp output
-                        fastp_output = seq_file_local_path + '.json'
-                        if not path.exists(fastp_output):
-                            subprocess.call('fastp -i {} -I {} -j {}'.format(new_file['r1'], new_file['r2'],
-                                                                             fastp_output), shell=True)
-                        fastp = json.load(open(fastp_output))
-                        new_file['q20'] = fastp['summary']['after_filtering']['q20_rate']
-                        new_file['total_reads'] = fastp['summary']['before_filtering']['total_reads']
-                        new_file['passed_reads'] = fastp['filtering_result']['passed_filter_reads']
+                        # fastp_output = seq_file_local_path + '.json'
+                        # if not path.exists(fastp_output):
+                        #     subprocess.call('fastp -i {} -I {} -j {}'.format(new_file['r1'], new_file['r2'],
+                        #                                                      fastp_output), shell=True)
+                        # fastp = json.load(open(fastp_output))
+                        # new_file['q20'] = fastp['summary']['after_filtering']['q20_rate']
+                        # new_file['total_reads'] = fastp['summary']['before_filtering']['total_reads']
+                        # new_file['passed_reads'] = fastp['filtering_result']['passed_filter_reads']
 
 
                     if not criteria.check(new_file):
