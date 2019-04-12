@@ -58,8 +58,8 @@ class InitQC:
         merged_read_exists = False
         # Check this has been done before
         for pair in paired:
-            if (pair['files'][0]['label'] == path.basename(merged_reads_r1)
-                and pair['files'][1]['label'] == path.basename(merged_reads_r2)):
+            if (pair['files'][0]['label'] == 'filt.' + path.basename(merged_reads_r1)
+                and pair['files'][1]['label'] == 'filt.' + path.basename(merged_reads_r2)):
                 merged_read_exists = True
         if not merged_read_exists:
             if not path.exists(merged_reads_r1) or not path.exists(merged_reads_r2):
@@ -67,10 +67,12 @@ class InitQC:
                     if len(pair['files']) > 2:
                         log.error('More than two read files in a pair? %s' % sample_name)
                     else:
-                        lane_name = re.search('.*_(L\d+)_R1_\d+.fastq.*', pair['files'][0].get('label')).group(1)
-                        r1_filename = self.read_file_path(pair['files'][0], temp_dir, checksum=pair['files'][0]['uploadSha256'])
-                        r2_filename = self.read_file_path(pair['files'][1], temp_dir, checksum=pair['files'][1]['uploadSha256'])
-                        lanes[lane_name] = [r1_filename, r2_filename]
+                        lane_match = re.search('.*_(L\d+)_R1_\d+.fastq.*', pair['files'][0].get('label'))
+                        if lane_match:
+                            lane_name = lane_match.group(1)
+                            r1_filename = self.read_file_path(pair['files'][0], temp_dir, checksum=pair['files'][0]['uploadSha256'])
+                            r2_filename = self.read_file_path(pair['files'][1], temp_dir, checksum=pair['files'][1]['uploadSha256'])
+                            lanes[lane_name] = [r1_filename, r2_filename]
                 if len(lanes) == 4:
                     subprocess.call('cat {} > {}'.format(' '.join(sorted([x[0] for x in lanes.values()])),
                                                          merged_reads_r1), shell=True)
@@ -82,6 +84,7 @@ class InitQC:
                         os.remove(temp_file)
                 elif not merged_read_exists:
                     log.error('Reads are missing %s' % sample_name)
+                    merged_read_exists = True
         return merged_reads_r1, merged_reads_r2, merged_read_exists
 
 
@@ -115,10 +118,8 @@ class InitQC:
                     # run fastp.
                     fastp_r1 = os.path.join(os.path.dirname(r1), 'filt.' + path.basename(r1))
                     fastp_r2 = os.path.join(os.path.dirname(r2), 'filt.' + path.basename(r2))
-                    subprocess.call('fastp  -i {} -I {} -o {} -O {} '.format(r1, r2, fastp_r1, fastp_r2))
+                    subprocess.call('fastp  -i {} -I {} -o {} -O {} '.format(r1, r2, fastp_r1, fastp_r2), shell=True)
                     self.api.send_sequence_files(SequenceFile([fastp_r1, fastp_r2]), sample_name, project[0], 1)
-
-
 
 
     def wait(self, sample_names, project, criteria, checksums, temp_dir):
