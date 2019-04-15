@@ -935,7 +935,8 @@ def initialize_api_from_config(config_path):
     """
     with open(config_path, 'r') as stream:
         try:
-            cfg = yaml.load(stream, Loader=yaml.FullLoader)
+            # Safer: cfg = yaml.load(stream, Loader=yaml.FullLoader)
+            cfg = yaml.load(stream)
             client_id = cfg.get("client_id")
             client_secret = cfg.get("client_secret")
             base_url = cfg.get("base_url")
