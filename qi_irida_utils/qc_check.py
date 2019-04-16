@@ -18,18 +18,20 @@ class InitQC:
     def __init__(
         self,
         project_name,
+        temp_dir,
         config_file=path.join(path.expanduser("~"), ".irida/nabil_uploader.yaml"),
     ):
         self.config_file = config_file
         self.project_name = project_name
         self.api = api_calls.initialize_api_from_config(self.config_file)
+        self.temp_dir = temp_dir
 
     def get_criteria(self, criteria="wgs"):
         return Wgs
 
     def get_projects(self, project_name):
         if self.project_name == "all":
-            projects = [(x.id, x.name) for x in self.api.get_projects()]
+            projects = [(x.id, x.name) for x in self.api.get_projects() if x.name.startswith('Basespace-')]
             log.info("Running on all projects")
         else:
             projects = [
@@ -101,13 +103,23 @@ class InitQC:
         else:
             return seq_file_path
 
+    def clear_temp(self):
+        if not path.exists(self.temp_dir):
+            os.mkdir(self.temp_dir)
+        else:
+            for the_file in os.listdir(self.temp_dir):
+                file_path = os.path.join(self.temp_dir, the_file)
+                try:
+                    if os.path.isfile(file_path):
+                        os.unlink(file_path)
+                    # elif os.path.isdir(file_path): shutil.rmtree(file_path)
+                except Exception as e:
+                    print(e)
+
     def run(self):
-        # Make temp dir
-        temp_dir = "/media/alikhan/4D945E8F0BE5CE8A/irida"
-        if not path.exists(temp_dir):
-            os.mkdir(temp_dir)
         criteria = self.get_criteria()
         for project in self.get_projects(self.project_name):
+            self.clear_temp()
             sample_names = [x.sample_name for x in self.api.get_samples(project[0])]
             checksums = []
             log.info("Reading %d records in %s" % (len(sample_names), project[1]))
@@ -121,58 +133,35 @@ class InitQC:
                     subprocess.call('fastp  -i {} -I {} -o {} -O {} '.format(r1, r2, fastp_r1, fastp_r2), shell=True)
                     self.api.send_sequence_files(SequenceFile([fastp_r1, fastp_r2]), sample_name, project[0], 1)
 
+        self.merge_if_ok()
 
-    def wait(self, sample_names, project, criteria, checksums, temp_dir):
-            #
+    def merge_if_ok(self):
+        for project in self.get_projects(self.project_name):
+            sample_names = [x.sample_name for x in self.api.get_samples(project[0])]
+            log.info("Reading %d records in %s" % (len(sample_names), project[1]))
             for sample_name in sample_names:
+                # first merge NextSeq reads
                 paired, unpaired = self.api.get_sequence_files_breakdown(project[0], sample_name)
-                # Check if pairs are ok
-                for pair in paired:
-                    if len(pair['files']) > 2:
-                        log.error('More than two read files in a pair? %s' % sample_name)
-                    if pair['processingState'] != 'FINISHED':
-                        log.error('Reads are not finished processing %s' % sample_name)
-                    else:
-                        # Look for file location on local.
-                        # Build final summary dict
-                        pair['files'][0].get("uploadSha256")
-                        new_file = dict(
-                            r1_filename=pair['files'][0].get('label'),
-                            r2_filename=pair['files'][1].get('label'),
-                            r1_remotepath=pair['files'][0].get('file'),
-                            r2_remotepath=pair['files'][1].get('file'),
-                            r1_checksum_sha256=pair['files'][0].get("uploadSha256"),
-                            r2_checksum_sha256=pair['files'][1].get("uploadSha256"),
-                            project_name=project[1],
-                            sample_name=sample_name,
-                            r1=pair[0],
-                            r2=pair[1]
-                        )
-                        seq_file_path = pair[0].get("file")
-                        seq_file_link = pair[0].get('links')[0].get('href')
-                        seq_file_name = path.basename(seq_file_path.get("file"))
-                        seq_file_local_path = path.join(temp_dir, seq_file_name)
+                merged_reads_r1 = 'filt.' + sample_name + '_R1.fastq'
+                merged_reads_r2 = 'filt.' + sample_name + '_R2.fastq'
+                merged_read_exists = False
+                r1_list = [pair['files'][0]['label'] for pair in paired if pair.get('processingState') == 'FINISHED']
+                r2_list = [pair['files'][1]['label'] for pair in paired if pair.get('processingState') == 'FINISHED']
+                if merged_reads_r1 in r1_list and merged_reads_r2 in r2_list:
+                            merged_read_exists = True
+                if merged_read_exists:
+                    for pair in paired:
+                        read_name = pair.get('files')[0].get('label')
+                        lane_match = re.search('.*_(L\d+)_R[12]_\d+.fastq.*', read_name)
+                        if lane_match:
+                            for read in pair.get('files'):
+                                file_path = read.get('file')
+                                print(file_path)
+                            delete_this = pair.get('links')[0].get('href')
+                            self.api._session.delete(delete_this)
 
-                        # Generate fastp output
-                        # fastp_output = seq_file_local_path + '.json'
-                        # if not path.exists(fastp_output):
-                        #     subprocess.call('fastp -i {} -I {} -j {}'.format(new_file['r1'], new_file['r2'],
-                        #                                                      fastp_output), shell=True)
-                        # fastp = json.load(open(fastp_output))
-                        # new_file['q20'] = fastp['summary']['after_filtering']['q20_rate']
-                        # new_file['total_reads'] = fastp['summary']['before_filtering']['total_reads']
-                        # new_file['passed_reads'] = fastp['filtering_result']['passed_filter_reads']
-
-
-                    if not criteria.check(new_file):
-                        log.error("%s Failed QC" % new_file["sample_name"])
-                    checksums.append(new_file)
-                # Merge lanes if reads are good.
-
-                print(sample_name)
-            self.write_summary()
 
 
 if __name__ == "__main__":
-    test = InitQC("NGS_NS_14_assemblies")
+    test = InitQC("all", "/media/alikhan/4D945E8F0BE5CE8A/irida/")
     test.run()
