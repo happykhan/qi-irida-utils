@@ -20,7 +20,8 @@ opt_parser.add_argument('-i', '--id', help='Project ID',required=True)
 
 opt = opt_parser.parse_args()
 
-#Check YAML configuration file is a file, and in YAML format
+# Check YAML configuration file is a file, and in YAML format
+# ------------------------------------------------------------------
 conf_file = Path(opt.conf)
 if not conf_file.is_file():
     print('Configuration file not found at: ' + opt.conf)
@@ -34,6 +35,7 @@ else:
         exit(1)
 
 # API REQUEST FUNCTION: add baseUrl and return JSON catching exceptions
+# ---------------------------------------------------------------------
 def api_call(request):
     try:
         api_answer = api._session.get(api.base_url + request)
@@ -50,18 +52,22 @@ def api_call(request):
 
 
 def jprint(json_object):
+	"""Pretty print a JSON_OBJECT"""
 	json_object = json.dumps(json_object, indent=3, sort_keys=True)
 	print(json_object)
 
 
+# Initialize API (OAuth2)
 yaml_config_file = path.join(opt.conf)
 api = api_calls.initialize_api_from_config(yaml_config_file)
 
+# Get samples from PROJECT ID
 request = '/projects/{}/samples/'.format(opt.id)
 samples = api_call(request)
 
 
 def getmetadata(sample):
+	"""retrieve sample metadata, given IRIDA Sample ID"""
 	request = '/samples/{}/metadata/'.format(sample);
 	metadata = api_call(request)
 	return metadata['metadata']
@@ -69,6 +75,7 @@ def getmetadata(sample):
 
 
 def sample_has_reads(sample, library='pairs'):
+	"""count the number of successully uploaded reads for a sample. library=pairs/unpaired"""
 	if library!='pairs' and library!='unpaired':
 		print('Coding error: function called with illegal library type (must be pairs or unpaired')
 		exit(0)
@@ -86,27 +93,35 @@ def sample_has_reads(sample, library='pairs'):
 	return uploaded_reads
 
 def sample_reads(sample):
+	"""count the number of successully uploaded reads for a sample (both paired and unpaired)"""
 	paired = sample_has_reads(sample, 'pairs')
 	unpaired = sample_has_reads(sample, 'unpaired')
 	return paired + unpaired
 
 
 def debug(msg):
+	"""prints a text to stderr prepending '##', only if --verbose is active"""
 	if opt.verbose:
 		eprint('## ' +msg)
 
 def eprint(*args, **kwargs):
-    print(*args, file=sys.stderr, **kwargs)	
+	"""print to STDERR"""
+	print(*args, file=sys.stderr, **kwargs)	
 
 
+# THE WHOLE SAMPLE TABLE 
+# Dictionary of dictionaries
 sample_table = {};
+
+# Headers to print (will add all metadata)
 headers = {'SampleID':1, 'IRIDA_ID':1}
 
 for sample in samples['resources']:
 	id=sample['identifier']
 
 	debug('Processing: ' + id)
-	#dict_keys(['createdDate', 'modifiedDate', 'sampleName', 'description', 'organism', 'isolate', 'strain', 'collectedBy', 'collectionDate', 'geographicLocationName', 'isolationSource', 'latitude', 'longitude', 'label', 'links', 'identifier'])
+	#dict_keys(['createdDate', 'modifiedDate', 'sampleName', 'description', 'organism', 'isolate', 'strain', 'collectedBy', 
+	#'collectionDate', 'geographicLocationName', 'isolationSource', 'latitude', 'longitude', 'label', 'links', 'identifier'])
 	this_sample={}
 	this_sample['SampleID'] = sample['sampleName']
 	this_sample['IRIDA_ID'] = id
