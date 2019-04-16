@@ -9,14 +9,19 @@ import json
 import re
 from pathlib import Path
 import pdb
-
+import time
 # ARGUMENTS
 opt_parser = argparse.ArgumentParser(description='IRIDA API command line interface to dump sample metadata as TSV')
+
+opt_parser.add_argument('-i', '--id', help='Project ID',required=True)
+opt_parser.add_argument('-p', '--printproject', help='Add project description as header',  action='store_true')
 opt_parser.add_argument('-c', '--conf', help='Path to YAML configuration file [~/.irida/uploader.yaml]', default=path.join(path.expanduser("~"), ".irida/uploader.yaml"), type=str)
 opt_parser.add_argument('-v', '--verbose', help='Increase output verbosity', action='store_true')
 opt_parser.add_argument('-s', '--noheaderspace', help='Replaces header spaces with underscores',  action='store_true')
 opt_parser.add_argument('-z', '--novaluespace', help='Replaces spaces in cell values with underscores [!]',  action='store_true')
-opt_parser.add_argument('-i', '--id', help='Project ID',required=True)
+opt_parser.add_argument('-e', '--emptycell', help='Value to print in empty cells (default: "")',  default='')
+
+
 
 opt = opt_parser.parse_args()
 
@@ -41,14 +46,24 @@ def api_call(request):
         api_answer = api._session.get(api.base_url + request)
         api_json = api_answer.json()
     except Exception as ex:
-        msg = [("Message","API raised exception")]
-        return json.dumps(msg)
+        msg = {"APIError":1, "Message":"API raised exception"}
+        return msg
 
     if api_json['resource']:
         return api_json['resource']
     else:
-        msg = [("Message","API answer contains no valid content")]
-        return json.dumps(msg)
+        msg = {"APIError":1, "Message":"API answer contains no valid content"}
+        return msg
+
+
+def debug(msg):
+	"""prints a text to stderr prepending '##', only if --verbose is active"""
+	if opt.verbose:
+		eprint('## ' +msg)
+
+def eprint(*args, **kwargs):
+	"""print to STDERR"""
+	print(*args, file=sys.stderr, **kwargs)	
 
 
 def jprint(json_object):
@@ -57,14 +72,22 @@ def jprint(json_object):
 	print(json_object)
 
 
+def printprojectinfo(id):
+	request = '/projects/{}/'.format(id)
+	project = api_call(request)
+	created = time.strftime("%a, %d %b %Y %H:%M:%S +0000", time.localtime(project['createdDate']/ 1000.0))
+	print('#Project {}: {} {} (created {})'.format(id, project['label'], project['organism'], created) )
+
+
 # Initialize API (OAuth2)
 yaml_config_file = path.join(opt.conf)
 api = api_calls.initialize_api_from_config(yaml_config_file)
 
+if opt.printproject:
+	printprojectinfo(opt.id)
 # Get samples from PROJECT ID
 request = '/projects/{}/samples/'.format(opt.id)
 samples = api_call(request)
-
 
 def getmetadata(sample):
 	"""retrieve sample metadata, given IRIDA Sample ID"""
@@ -99,16 +122,6 @@ def sample_reads(sample):
 	return paired + unpaired
 
 
-def debug(msg):
-	"""prints a text to stderr prepending '##', only if --verbose is active"""
-	if opt.verbose:
-		eprint('## ' +msg)
-
-def eprint(*args, **kwargs):
-	"""print to STDERR"""
-	print(*args, file=sys.stderr, **kwargs)	
-
-
 # THE WHOLE SAMPLE TABLE 
 # Dictionary of dictionaries
 sample_table = {};
@@ -116,10 +129,14 @@ sample_table = {};
 # Headers to print (will add all metadata)
 headers = {'SampleID':1, 'IRIDA_ID':1}
 
+if 'APIError' in samples:
+	eprint("Wrong response from IRIDA: {}".format(samples['Message']))
+	exit(1)
+
 for sample in samples['resources']:
 	id=sample['identifier']
 
-	debug('Processing: ' + id)
+	 
 	#dict_keys(['createdDate', 'modifiedDate', 'sampleName', 'description', 'organism', 'isolate', 'strain', 'collectedBy', 
 	#'collectionDate', 'geographicLocationName', 'isolationSource', 'latitude', 'longitude', 'label', 'links', 'identifier'])
 	this_sample={}
@@ -138,7 +155,7 @@ for sample in samples['resources']:
 	if uploaded_read_sets < 1:
 		debug('{} has no uploaded reads'.format(sample['sampleName']))
 
-	debug('{}\t{}\t{}'.format(id,sample['sampleName'],uploaded_read_sets))
+	debug('Getting sample {}\t{}\t{}'.format(id,sample['sampleName'],uploaded_read_sets))
 
 	sample_table[id] = this_sample
 
@@ -157,7 +174,10 @@ print(header)
 for sample in sample_table:
 	line = ''
 	for column in headers:
-		value = sample_table[sample][column]
+		value = opt.emptycell
+		if column in sample_table[sample]:
+			value = sample_table[sample][column]
+
 		if opt.novaluespace and isinstance(value, str):
 			value = value.replace(" ", "_")
 		line += '{}\t'.format(value)
