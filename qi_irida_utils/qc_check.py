@@ -61,6 +61,7 @@ class InitQC:
             if (pair['files'][0]['label'] == 'filt.' + path.basename(merged_reads_r1)
                 and pair['files'][1]['label'] == 'filt.' + path.basename(merged_reads_r2)):
                 merged_read_exists = True
+
         if not merged_read_exists:
             if not path.exists(merged_reads_r1) or not path.exists(merged_reads_r2):
                 for pair in paired:
@@ -86,7 +87,6 @@ class InitQC:
                     log.error('Reads are missing %s' % sample_name)
                     merged_read_exists = True
         return merged_reads_r1, merged_reads_r2, merged_read_exists
-
 
     def read_file_path(self, file_dict, temp_dir, checksum=None):
         # Find path to read files, or download if not found.
@@ -174,5 +174,5 @@ class InitQC:
 
 
 if __name__ == "__main__":
-    test = InitQC("Brazil Salmonella")
+    test = InitQC("NGS_NS_14_assemblies")
     test.run()
