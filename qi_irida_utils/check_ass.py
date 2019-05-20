@@ -166,5 +166,5 @@ if __name__ == "__main__":
     manifest = '/media/alikhan/4D945E8F0BE5CE8A/braz/uploaded.csv'
     public_data_meta = '/media/alikhan/4D945E8F0BE5CE8A/braz/public_data.tsv'
     public_data = '/usr/users/QIB_fr005/alikhan/work/labbook/public_acc.tsv'
-    test = CheckAssembly("Brazil Salmonella", manifest, public_data, public_data_meta)
+    test = CheckAssembly("B_Sal Complete", manifest, public_data, public_data_meta)
     test.run()
