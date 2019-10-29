@@ -5,7 +5,7 @@ requests==2.21.0
 appdirs==1.4.3
 pytest
 mkdocs==1.0.4
-cerberus==1.2
+cerberus==1.3.2
 pynsist==2.3
 argparse
 selenium==3.141.0
