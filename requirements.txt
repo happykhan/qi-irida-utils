@@ -3,7 +3,7 @@ autopep8==1.4.3
 pycodestyle
 requests==2.21.0
 appdirs==1.4.3
-pytest
+pytest==5.4.0
 mkdocs==1.0.4
 cerberus==1.2
 pynsist==2.3
