@@ -6,7 +6,7 @@ Cerberus==1.2
 certifi==2018.11.29
 chardet==3.0.4
 Click==7.0
-coverage==4.5.2
+coverage==5.1
 distlib==0.2.8
 filelock==3.0.10
 icon-font-to-png==0.4.1
