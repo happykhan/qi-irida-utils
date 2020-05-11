@@ -2,7 +2,7 @@ rauth==0.7.3
 autopep8==1.4.3
 pycodestyle
 requests==2.21.0
-appdirs==1.4.3
+appdirs==1.4.4
 pytest
 mkdocs==1.0.4
 cerberus==1.2
