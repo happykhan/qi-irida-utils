@@ -1,7 +1,7 @@
 rauth==0.7.3
 autopep8==1.4.3
 pycodestyle
-requests==2.21.0
+requests==2.25.0
 appdirs==1.4.3
 pytest
 mkdocs==1.0.4
