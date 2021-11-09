@@ -11,7 +11,7 @@ distlib==0.2.8
 filelock==3.0.10
 icon-font-to-png==0.4.1
 idna==2.8
-Jinja2==2.10
+Jinja2==3.0.3
 livereload==2.6.0
 llvmlite==0.27.0
 Markdown==3.0.1
