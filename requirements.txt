@@ -8,4 +8,4 @@ mkdocs==1.0.4
 cerberus==1.2
 pynsist==2.3
 argparse
-selenium==3.141.0
+selenium==4.1.1
