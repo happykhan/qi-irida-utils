@@ -23,7 +23,7 @@ Pillow==5.4.1
 pipe==1.5.0
 pluggy==0.8.1
 py==1.7.0
-pycodestyle==2.5.0
+pycodestyle==2.9.0
 pynsist==2.3
 pytest==4.2.1
 PyYAML>=4.2b1
