@@ -8,7 +8,7 @@ chardet==3.0.4
 Click==7.0
 coverage==4.5.2
 distlib==0.2.8
-filelock==3.0.10
+filelock==3.8.0
 icon-font-to-png==0.4.1
 idna==2.8
 Jinja2==2.10
