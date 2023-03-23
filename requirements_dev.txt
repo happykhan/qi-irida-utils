@@ -14,7 +14,7 @@ idna==2.8
 Jinja2==2.10
 livereload==2.6.0
 llvmlite==0.27.0
-Markdown==3.0.1
+Markdown==3.4.3
 MarkupSafe==1.1.0
 mkdocs==1.0.4
 more-itertools==6.0.0
