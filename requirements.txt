@@ -4,7 +4,7 @@ pycodestyle
 requests==2.21.0
 appdirs==1.4.3
 pytest
-mkdocs==1.0.4
+mkdocs==1.6.1
 cerberus==1.2
 pynsist==2.3
 argparse
